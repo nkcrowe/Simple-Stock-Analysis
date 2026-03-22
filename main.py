@@ -5,7 +5,7 @@ import analysis
 st.title("Stock Analysis")
 st.write("Analyze any stock's performance over the last 5 years.")
 
-# ── Sidebar: stock list and interval ─────────────────────────────────────────
+# Sidebar: stock list and interval
 
 with st.sidebar:
     st.header("Portfolio Setup")
@@ -22,7 +22,9 @@ with st.sidebar:
 
     time_interval = st.selectbox("Time interval", ["1d", "1wk", "1mo", "3mo"])
 
-# ── Menu ──────────────────────────────────────────────────────────────────────
+    start_date = st.text_input("Start date (yyyy-mm-dd)","2020-01-01" )
+
+# Menu
 
 action_label = st.radio("Select an action", [
     "1. View stock list",

@@ -1,5 +1,6 @@
 import yfinance as yf
 import analysis
+import datetime
 
 def dates(time_interval):
     #create list of dates based on time interval selected, used to verify user input in time interval analysis
@@ -152,9 +153,9 @@ def quarter_dates():
 
     return time_list
 
-def create_csv(analysis_list, time_interval):
+def create_csv(analysis_list, time_interval, start_date):
     #create stock data csv
-    stocks = yf.download(analysis_list, start="2020-01-01", end="2025-12-01", interval=time_interval, auto_adjust=True, progress=False)
+    stocks = yf.download(analysis_list, start=start_date, end=datetime.date.today(), interval=time_interval, auto_adjust=True, progress=False)
     return stocks
 
 def date_range(time_interval, analysis_list, start_date, end_date):
