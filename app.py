@@ -100,7 +100,7 @@ with st.sidebar:
         help="Enter one or more tickers separated by commas.",
         height=100,
     )
-    interval = st.selectbox("Interval", ["1d", "1wk", "1mo", "3mo"], index=0)
+    interval = st.selectbox("Interval", ["1d", "1wk", "1mo"], index=0)
 
     default_start = date.today() - timedelta(days=365 * 5)
     start_date = st.date_input("Start date", value=default_start)

@@ -118,7 +118,7 @@ elif action == 4:
             prices = analysis.stock_data(stocks_interval, ticker_list)
 
         st.write("Time interval updated")
-        analysis.price_plot(analysis_list, prices, time_interval, action=5, final_start_date=final_start_date)
+        analysis.price_plot(analysis_list, prices, time_interval, action=5, start_date=start_date)
 
         total_return, return_list, volatility = analysis.return_and_volatility(prices, analysis_list)
         st.write(f"**{analysis_list[0]} data from {final_start_date} to {final_end_date}**")

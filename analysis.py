@@ -78,7 +78,7 @@ def stock_analysis(prices, analysis_list, time_interval):
     return report
 
 
-def price_plot(analysis_list, prices, time_interval, action, final_start_date):
+def price_plot(analysis_list, prices, time_interval, action, start_date):
     import streamlit as st
     #create graph(s) of price data over time
     for i in range(len(analysis_list)):
@@ -89,24 +89,24 @@ def price_plot(analysis_list, prices, time_interval, action, final_start_date):
         #single or double stock analysis
         if action == 3 or action == 4:
             if time_interval == "1d":
-                ax.set_xlabel("Days since Jan. 1 2020")
+                ax.set_xlabel("Days since " + start_date)
             elif time_interval == "1wk":
-                ax.set_xlabel("Weeks since Jan. 1 2020")
+                ax.set_xlabel("Weeks since " + start_date)
             elif time_interval == "1mo":
-                ax.set_xlabel("Months since Jan. 1 2020")
+                ax.set_xlabel("Months since " + start_date)
             else:
-                ax.set_xlabel("Quarters since Jan. 1 2020")
+                ax.set_xlabel("Quarters since " + start_date)
 
         #change x label if doing time interval analysis
         elif action == 5:
             if time_interval == "1d":
-                ax.set_xlabel("Days since " + final_start_date)
+                ax.set_xlabel("Days since " + start_date)
             elif time_interval == "1wk":
-                ax.set_xlabel("Weeks since " + final_start_date)
+                ax.set_xlabel("Weeks since " + start_date)
             elif time_interval == "1mo":
-                ax.set_xlabel("Months since " + final_start_date)
+                ax.set_xlabel("Months since " + start_date)
             else:
-                ax.set_xlabel("Quarters since " + final_start_date)
+                ax.set_xlabel("Quarters since " + start_date)
 
         ax.set_ylabel("Stock Price ($)")
         st.pyplot(fig)
