@@ -1,6 +1,6 @@
 # Simple-Stock-Analysis
 
-🚀 Live App: https://your-app-link.streamlit.app
+🚀 Live App: https://simple-stock-analysis-noxovwqf67py4g5zxanyna.streamlit.app/
 
 ## Features
 - Analyze stock price data
