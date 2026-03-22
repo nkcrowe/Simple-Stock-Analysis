@@ -6,7 +6,7 @@ import pandas as pd
 import streamlit as st
 import yfinance as yf
 
-st.set_page_config(page_title="Simple Stock Analysis", page_icon="📈", layout="wide")
+st.set_page_config(page_title = "Simple Stock Analysis", page_icon = "📈", layout = "wide")
 
 
 def parse_tickers(raw: str) -> list[str]:

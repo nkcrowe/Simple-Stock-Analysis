@@ -1,38 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-def choose_single_stock(ticker_list):
-    # choose stock to analyze
-    if len(ticker_list) > 1:  # make sure there is 1+ stock, otherwise just use the stock in list
-        user_input = input("Enter stock ticker you would like to analyze: ").strip().upper()
-        while user_input not in ticker_list:
-            user_input = input("Enter valid stock from list: ").strip().upper()
-        analysis_list = [user_input]
-    else:
-        analysis_list = ticker_list
-
-    return analysis_list
-
-
-def choose_two_stocks(ticker_list):
-    #choose two stocks to compare
-
-    if len(ticker_list) > 2: #make sure there are 2+ stocks, otherwise just use the two stocks in list
-        user_input1 = input("Enter first stock ticker you would like to analyze: ").strip().upper()
-        while user_input1 not in ticker_list:
-            user_input1 = input("Enter valid stock from list: ").strip().upper()
-
-        user_input2 = input("Enter second stock ticker you would like to analyze: ").strip().upper()
-        while user_input2 not in ticker_list:
-            user_input2 = input("Enter valid stock from list: ").strip().upper()
-        analysis_list = [user_input1, user_input2]
-
-        analysis_list.sort()
-    else:
-        analysis_list = ticker_list
-
-    return analysis_list
-
 def stock_data(stocks, analysis_list):
     #create dictionary, key = ticker, value = list of open prices in date order
     prices = {}
@@ -111,36 +79,35 @@ def stock_analysis(prices, analysis_list, time_interval):
 
 
 def price_plot(analysis_list, prices, time_interval, action, final_start_date):
+    import streamlit as st
     #create graph(s) of price data over time
     for i in range(len(analysis_list)):
-        plt.figure()
-        plt.plot(prices[analysis_list[i]])
-        plt.title(analysis_list[i] + " Stock Price")
+        fig, ax = plt.subplots()
+        ax.plot(prices[analysis_list[i]])
+        ax.set_title(analysis_list[i] + " Stock Price")
 
         #single or double stock analysis
         if action == 3 or action == 4:
             if time_interval == "1d":
-                plt.xlabel("Days since Jan. 1 2020")
+                ax.set_xlabel("Days since Jan. 1 2020")
             elif time_interval == "1wk":
-                plt.xlabel("Weeks since Jan. 1 2020")
+                ax.set_xlabel("Weeks since Jan. 1 2020")
             elif time_interval == "1mo":
-                plt.xlabel("Months since Jan. 1 2020")
+                ax.set_xlabel("Months since Jan. 1 2020")
             else:
-                plt.xlabel("Quarters since Jan. 1 2020")
+                ax.set_xlabel("Quarters since Jan. 1 2020")
 
         #change x label if doing time interval analysis
         elif action == 5:
             if time_interval == "1d":
-                plt.xlabel("Days since " + final_start_date)
+                ax.set_xlabel("Days since " + final_start_date)
             elif time_interval == "1wk":
-                plt.xlabel("Weeks since " + final_start_date)
+                ax.set_xlabel("Weeks since " + final_start_date)
             elif time_interval == "1mo":
-                plt.xlabel("Months since " + final_start_date)
+                ax.set_xlabel("Months since " + final_start_date)
             else:
-                plt.xlabel("Quarters since " + final_start_date)
+                ax.set_xlabel("Quarters since " + final_start_date)
 
-        plt.ylabel("Stock Price ($)")
-
-    # return to menu
-    print("\nClose graph window to return to menu")
-    plt.show()
+        ax.set_ylabel("Stock Price ($)")
+        st.pyplot(fig)
+        plt.close(fig)

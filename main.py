@@ -1,137 +1,154 @@
-def main():
-    import data
-    import analysis
+import streamlit as st
+import data
+import analysis
 
-    print("Welcome to Stock Analysis!")
-    print("You can analyze any stock's performance over the last 5 years.\n")
+st.title("Stock Analysis")
+st.write("Analyze any stock's performance over the last 5 years.")
 
-    #create initial stock list and time interval
-    ticker_list = data.choose_stocks()
-    time_interval = data.choose_interval()
+# ── Sidebar: stock list and interval ─────────────────────────────────────────
 
-    #menu and user selection
-    action = menu()
-    while action != 8: #enter 8 to exit code
-        if action == 1: #view stock list
-            data.stock_list(ticker_list)
+with st.sidebar:
+    st.header("Portfolio Setup")
 
-        elif action == 2: #edit stock list and time interval
-            ticker_list = data.edit_stocks(ticker_list)
-            time_interval = data.choose_interval()
-            data.stock_list(ticker_list)
+    use_sample = st.checkbox("Use sample portfolio")
+    if use_sample:
+        ticker_list = ["^GSPC", "AAPL", "NVDA", "TSLA", "NFLX", "PFE", "BAC", "MSFT", "GOOGL", "DIS"]
+        st.caption("Note: ^GSPC is the ticker for the S&P 500")
+    else:
+        raw = st.text_input("Enter tickers (comma-separated)", "AAPL, MSFT, GOOGL")
+        ticker_list = sorted([t.strip().upper() for t in raw.split(",") if t.strip()])
 
-        elif action == 3: #analyze single stock
-            data.stock_list(ticker_list) #show stock list
-            analysis_list = analysis.choose_single_stock(ticker_list) #user chooses stock to analyze
-            if len(analysis_list) < 1: #if stock list is empty, choose stock to add and analyze
-                add = input("Enter stock to analyze: ").strip().upper()
-                analysis_list.append(add)
+    st.write("Current stock list:", ticker_list)
 
-            print("\nStock Data Loading...")
-            stocks = data.create_csv(analysis_list, time_interval) #load stock data
-            prices = analysis.stock_data(stocks, analysis_list) #place open prices into dictionary, key = stock ticker
-            analysis.price_plot(analysis_list, prices, time_interval, action, final_start_date = "") #plot prices
+    time_interval = st.selectbox("Time interval", ["1d", "1wk", "1mo", "3mo"])
 
-            total_return, return_list, volatility = analysis.return_and_volatility(prices, analysis_list) #returns and volatility for stock
-            print(analysis_list[0], "data")
-            print("–" * 20)
-            print("Returns:", total_return[0] + "%",  # need this for single and double function too
-                  "\nVolatility:", volatility[0] + "%\n")
-            go_back = ""
-            while go_back != "back": #wait until user enters back to return to menu
-                go_back = input("\nEnter \"back\" to return to menu: ").strip().lower()
+# ── Menu ──────────────────────────────────────────────────────────────────────
 
-        elif action == 4: #compare two stocks
-            data.stock_list(ticker_list) #show stock list
-            analysis_list = analysis.choose_two_stocks(ticker_list) #user chooses 2 stocks from stock list
-            if len(analysis_list) < 2: #if only 1 stock in stock list, enter second to compare to
-                add = input("Enter stock to compare to: ").strip().upper()
-                analysis_list.append(add)
+action_label = st.radio("Select an action", [
+    "1. View stock list",
+    "2. Analyze a single stock",
+    "3. Compare two stocks",
+    "4. Time interval analysis",
+    "5. View portfolio summary",
+    "6. Save an analysis report",
+])
+action = int(action_label[0])   # pull the number off the front of the label
 
-            print("\nStock Data Loading...")
-            stocks = data.create_csv(analysis_list, time_interval) #download stock data
-            prices = analysis.stock_data(stocks, analysis_list) #create dictionary of open prices, key = stock ticker
-            analysis.price_plot(analysis_list, prices, time_interval, action, final_start_date = "") #price plot of each stock
+# ── Action 1: View stock list ─────────────────────────────────────────────────
 
-            for i in range(0, 2): #return and volatility of each stock
+if action == 1:
+    st.subheader("Current Stock List")
+    st.write(ticker_list)
+
+# ── Action 2: Analyze a single stock ─────────────────────────────────────────
+
+elif action == 2:
+    st.subheader("Single Stock Analysis")
+
+    chosen = st.selectbox("Choose a stock to analyze", ticker_list)
+    analysis_list = [chosen]
+
+    if st.button("Run Analysis"):
+        with st.spinner("Stock Data Loading..."):
+            stocks = data.create_csv(analysis_list, time_interval)
+            prices = analysis.stock_data(stocks, analysis_list)
+
+        analysis.price_plot(analysis_list, prices, time_interval, action=3, final_start_date="")
+
+        total_return, return_list, volatility = analysis.return_and_volatility(prices, analysis_list)
+        st.write(f"**{analysis_list[0]} data**")
+        st.write("---")
+        st.write("Returns:", total_return[0] + "%")
+        st.write("Volatility:", volatility[0] + "%")
+
+# ── Action 3: Compare two stocks ──────────────────────────────────────────────
+
+elif action == 3:
+    st.subheader("Compare Two Stocks")
+
+    if len(ticker_list) < 2:
+        st.warning("Add at least 2 stocks to your portfolio to use this option.")
+    else:
+        col1, col2 = st.columns(2)
+        with col1:
+            stock_a = st.selectbox("First stock",  ticker_list, index=0)
+        with col2:
+            stock_b = st.selectbox("Second stock", ticker_list, index=1)
+        analysis_list = sorted([stock_a, stock_b])
+
+        if st.button("Run Comparison"):
+            with st.spinner("Stock Data Loading..."):
+                stocks = data.create_csv(analysis_list, time_interval)
+                prices = analysis.stock_data(stocks, analysis_list)
+
+            analysis.price_plot(analysis_list, prices, time_interval, action=4, final_start_date="")
+
+            for i in range(2):
                 total_return, return_list, volatility = analysis.return_and_volatility(prices, analysis_list)
-                print(analysis_list[i], "data")
-                print("–"*20)
-                print("Returns:", total_return[i] + "%",  # need this for single and double function too
-                      "\nVolatility:", volatility[i] + "%\n")
-            go_back = ""
-            while go_back != "back": #wait until user enters back to return to menu
-                go_back = input("\nEnter \"back\" to return to menu: ").strip().lower()
+                st.write(f"**{analysis_list[i]} data**")
+                st.write("---")
+                st.write("Returns:", total_return[i] + "%")
+                st.write("Volatility:", volatility[i] + "%")
 
-        elif action == 5: #look at stock in more specific time interval
-            stocks_interval, final_start_date, final_end_date = data.date_range(time_interval, ticker_list) #user chooses new start and end dates
-            print("\nTime interval updated")
-            user_input = ""
-            user_input = input("Enter stock to analyze (enter back to return to menu): ").strip().upper() #user chooses stock to look at
-            while user_input != "BACK":
+# ── Action 4: Time interval analysis ─────────────────────────────────────────
 
-                while user_input not in ticker_list: #make sure user enters stock in their stock list
-                    data.stock_list(ticker_list)
-                    user_input = input("Enter valid stock to analyze (enter back to return to menu): ").strip().upper()
+elif action == 4:
+    st.subheader("Time Interval Analysis")
 
-                analysis_list = [user_input]
-                prices = analysis.stock_data(stocks_interval, ticker_list) #download open price data
-                analysis.price_plot(analysis_list, prices, time_interval, action, final_start_date) #price plot
+    if time_interval == "3mo":
+        st.caption("Due to time interval, available months are: 01, 04, 07, 10")
+    st.caption("Available years: 2020, 2021, 2022, 2023, 2024, 2025")
 
-                #individual stock return and volatility analysis
-                total_return, return_list, volatility = analysis.return_and_volatility(prices, analysis_list)
+    col1, col2 = st.columns(2)
+    with col1:
+        start_date = st.text_input("Start date (year-mm)", "2022-01")
+    with col2:
+        end_date = st.text_input("End date (year-mm)", "2024-01")
 
-                print(analysis_list[0], "data from " + final_start_date + " to " + final_end_date)
-                print("Returns:", total_return[0] + "%", #need this for single and double function too
-                    "\nVolatility:", volatility[0] + "%\n")
+    chosen = st.selectbox("Choose a stock to analyze", ticker_list)
+    analysis_list = [chosen]
 
-                user_input = input("Enter stock to analyze (enter back to return to menu): ").strip().upper() #allow user to look at another stock or return to menu
+    if st.button("Run Analysis"):
+        with st.spinner("Loading interval data..."):
+            stocks_interval, final_start_date, final_end_date = data.date_range(
+                time_interval, ticker_list, start_date, end_date
+            )
+            prices = analysis.stock_data(stocks_interval, ticker_list)
 
+        st.write("Time interval updated")
+        analysis.price_plot(analysis_list, prices, time_interval, action=5, final_start_date=final_start_date)
 
+        total_return, return_list, volatility = analysis.return_and_volatility(prices, analysis_list)
+        st.write(f"**{analysis_list[0]} data from {final_start_date} to {final_end_date}**")
+        st.write("---")
+        st.write("Returns:", total_return[0] + "%")
+        st.write("Volatility:", volatility[0] + "%")
 
-        elif action == 6: #portfolio summary
-            print("\nStock Data Loading...")
-            stocks = data.create_csv(ticker_list, time_interval) #download data of entire stock list
-            prices = analysis.stock_data(stocks, ticker_list) #create dictionary of open prices
-            report = analysis.stock_analysis(prices, ticker_list, time_interval) #combine data into str to print
-            print(report)
+# ── Action 5: Portfolio summary ───────────────────────────────────────────────
 
-            go_back = ""
-            while go_back != "back": #wait until user enters back to return to menu
-                go_back = input("\nEnter \"back\" to return to menu: ").strip().lower()
+elif action == 5:
+    st.subheader("Portfolio Summary")
 
-        elif action == 7: #save file
-            data.save(data, ticker_list, time_interval) #file only appears when code run finishes?
+    if st.button("Load Summary"):
+        with st.spinner("Stock Data Loading..."):
+            stocks = data.create_csv(ticker_list, time_interval)
+            prices = analysis.stock_data(stocks, ticker_list)
+            report = analysis.stock_analysis(prices, ticker_list, time_interval)
 
-        action = menu() #back to menu until user enters 8
+        st.text(report)   # preserves your fixed-width formatting
 
+# ── Action 6: Save report ─────────────────────────────────────────────────────
 
+elif action == 6:
+    st.subheader("Save Analysis Report")
 
-def menu():
-    #menu for user action
-    action = 0
-    while action < 1 or action > 8:
-        print("\nMake selection from options below: ",
-                           "1.  View stock list",
-                           "2.  Edit stock list/time interval",
-                           "3.  Analyze a single stock",
-                           "4.  Compare two stocks",
-                           "5.  Time interval analysis",
-                           "6.  View portfolio summary",
-                           "7.  Save an analysis report to a file",
-                           "8.  Exit\n", sep = "\n")
+    if st.button("Generate Report"):
+        with st.spinner("Stock Data Loading..."):
+            report_text = data.save(ticker_list, time_interval)
 
-        action = input().strip() #make sure input is number
-        while not action.isdigit():
-            print("Invalid selection, please enter a number 1-8")
-            action = input()
-
-        action = int(action)
-
-        if int(action) < 1 or int(action) > 8: #make sure input is between 1-8
-            print("Invalid selection, please enter a number 1-8")
-
-    return int(action)
-
-if __name__ == "__main__":
-    main()
+        st.download_button(
+            label="Download report as .txt",
+            data=report_text,
+            file_name="stock_report.txt",
+            mime="text/plain",
+        )
