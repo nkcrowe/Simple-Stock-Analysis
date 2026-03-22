@@ -26,7 +26,7 @@ with st.sidebar:
 
 # Menu
 
-action_label = st.radio("Select an action", [
+action_label = st.selectbox("Select an action",[
     "1. View stock list",
     "2. Analyze a single stock",
     "3. Compare two stocks",
@@ -34,6 +34,7 @@ action_label = st.radio("Select an action", [
     "5. View portfolio summary",
     "6. Save an analysis report",
 ])
+
 action = int(action_label[0])   # pull the number off the front of the label
 
 # ── Action 1: View stock list ─────────────────────────────────────────────────
