@@ -52,10 +52,10 @@ elif action == 2:
 
     if st.button("Run Analysis"):
         with st.spinner("Stock Data Loading..."):
-            stocks = data.create_csv(analysis_list, time_interval)
+            stocks = data.create_csv(analysis_list, time_interval, start_date)
             prices = analysis.stock_data(stocks, analysis_list)
 
-        analysis.price_plot(analysis_list, prices, time_interval, action=3, final_start_date="")
+        analysis.price_plot(analysis_list, prices, time_interval, action=3, start_date=start_date)
 
         total_return, return_list, volatility = analysis.return_and_volatility(prices, analysis_list)
         st.write(f"**{analysis_list[0]} data**")
@@ -80,10 +80,10 @@ elif action == 3:
 
         if st.button("Run Comparison"):
             with st.spinner("Stock Data Loading..."):
-                stocks = data.create_csv(analysis_list, time_interval)
+                stocks = data.create_csv(analysis_list, time_interval, start_date)
                 prices = analysis.stock_data(stocks, analysis_list)
 
-            analysis.price_plot(analysis_list, prices, time_interval, action=4, final_start_date="")
+            analysis.price_plot(analysis_list, prices, time_interval, action=4, start_date=start_date)
 
             for i in range(2):
                 total_return, return_list, volatility = analysis.return_and_volatility(prices, analysis_list)
@@ -133,7 +133,7 @@ elif action == 5:
 
     if st.button("Load Summary"):
         with st.spinner("Stock Data Loading..."):
-            stocks = data.create_csv(ticker_list, time_interval)
+            stocks = data.create_csv(ticker_list, time_interval, start_date)
             prices = analysis.stock_data(stocks, ticker_list)
             report = analysis.stock_analysis(prices, ticker_list, time_interval)
 
@@ -146,7 +146,7 @@ elif action == 6:
 
     if st.button("Generate Report"):
         with st.spinner("Stock Data Loading..."):
-            report_text = data.save(ticker_list, time_interval)
+            report_text = data.save(ticker_list, time_interval, start_date)
 
         st.download_button(
             label="Download report as .txt",

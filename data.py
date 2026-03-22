@@ -2,15 +2,15 @@ import yfinance as yf
 import analysis
 import datetime
 
-def dates(time_interval):
+def dates(time_interval, start_date, end_date):
     #create list of dates based on time interval selected, used to verify user input in time interval analysis
     if time_interval == "1d":
-        time_list = day_dates()
+        time_list = day_dates(start_date, end_date)
     elif time_interval == "1wk":
-        start_time_list = day_dates()
+        start_time_list = day_dates(start_date, end_date)
         time_list = [start_time_list[entry] for entry in range(0, len(start_time_list), 7)]
     elif time_interval == "1mo":
-        start_time_list = day_dates()
+        start_time_list = day_dates(start_date, end_date)
         time_list = [start_time_list[entry] for entry in range(0, len(start_time_list)) if start_time_list[entry][8:] == "01"]
     # elif time_interval == "3mo":
     #     time_list = quarter_dates()
@@ -119,7 +119,7 @@ def create_csv(analysis_list, time_interval, start_date):
     return stocks
 
 def date_range(time_interval, analysis_list, start_date, end_date):
-    time_list = dates(time_interval)
+    time_list = dates(time_interval, start_date, end_date)
 
     final_start_date = start_date
     final_end_date = end_date
